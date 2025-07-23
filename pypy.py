@@ -62,4 +62,16 @@ def calculate_score(row):
         score += 1
     return score
 
-df["점수"] = df.apply(calculate
+df["점수"] = df.apply(calculate_score, axis=1)
+avg_score = df["점수"].mean()
+
+# 피드백 메시지
+if avg_score >= 2.5:
+    msg = "🎉 완벽한 건강 습관! 지금처럼만 유지해보세요!"
+elif avg_score >= 1.5:
+    msg = "🙂 좋은 흐름이에요! 물 섭취나 수면을 조금 더 챙겨보면 더 좋아요."
+else:
+    msg = "💡 최근 관리를 놓치셨나요? 오늘부터 다시 작게 시작해보세요!"
+
+st.metric("최근 7일 평균 건강 점수 (0~3)", f"{avg_score:.2f}")
+st.info(msg)
