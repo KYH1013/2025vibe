@@ -1,56 +1,43 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import random
 
 # 페이지 설정
-st.set_page_config(page_title="점심 룰렛", page_icon="🍱")
-st.title("🎯 점심메뉴 원판 룰렛")
+st.set_page_config(page_title="점심 룰렛 + 광주 맛집 추천", page_icon="🍱")
+st.title("🎯 점심 메뉴 룰렛 + 광주 맛집 추천")
 
-# 기본 고정 메뉴
-default_menus = [
-    "김치찌개", "제육볶음", "돈까스", "라멘", "비빔밥",
-    "우동", "햄버거", "샐러드", "초밥", "파스타"
-]
+# 메뉴별 광주 맛집 매핑
+restaurant_map = {
+    "김치찌개": ["나산식당 - 동구", "궁전김치찌개 - 서구", "시골통돼지볶음 - 광산구"],
+    "돈까스": ["무등왕돈까스 - 서구", "진심왕돈까스 - 광산구", "카츠앤맘 전대점 - 전대"],
+    "제육볶음": ["대추골식당 - 북구", "함지박식당 - 남구"],
+    "라멘": ["이로리라멘 - 동명동", "멘야하나비 - 수완지구"],
+    "비빔밥": ["솔밭가든 - 북구", "돌솥밥집 - 동구"],
+    "우동": ["사누끼우동 - 상무지구", "오모가리우동 - 봉선동"],
+    "햄버거": ["버거스올마이티 - 전대", "버거스베로 - 수완"],
+    "샐러드": ["샐러드마켓 - 상무지구", "그린키친 - 봉선동"],
+    "초밥": ["초밥집이요 - 남구", "스시하루 - 동명동"],
+    "파스타": ["더플레이트 - 봉선동", "트라토리아 - 중외공원"],
+    "피자": ["피제리아다로마 - 전대후문", "더플레이버 - 상무지구"],
+    "쌀국수": ["에머이 - 봉선동", "퍼싸이공 - 운암"],
+    "냉면": ["을밀대 - 광천동", "봉평메밀막국수 - 동림동"],
+    "떡볶이": ["엽기떡볶이 - 광주점", "떡볶이공방 - 운암"],
+}
 
-# 세션 초기화
-if "menus" not in st.session_state:
-    st.session_state.menus = default_menus.copy()
-if "user_added" not in st.session_state:
-    st.session_state.user_added = []
+# 전체 메뉴 리스트
+menus = list(restaurant_map.keys())
 
-# ✅ 메뉴 추가 섹션
-with st.form(key="menu_form"):
-    new_menu = st.text_input("🍽️ 메뉴를 추가해보세요", placeholder="예: 순두부찌개")
-    submitted = st.form_submit_button("➕ 추가하기")
-    if submitted:
-        cleaned = new_menu.strip()
-        if not cleaned:
-            st.warning("⚠️ 메뉴를 입력해주세요.")
-        elif cleaned in st.session_state.menus:
-            st.info("이미 있는 메뉴입니다.")
-        else:
-            st.session_state.menus.append(cleaned)
-            st.session_state.user_added.append(cleaned)
-            st.success(f'"{cleaned}" 메뉴가 추가되었습니다!')
+# 추천 메뉴 출력
+if st.button("🍱 오늘 뭐 먹지?"):
+    selected_menu = random.choice(menus)
+    st.success(f"오늘의 추천 메뉴는 **{selected_menu}** 입니다!")
 
-# ✅ 사용자 추가 메뉴 제거
-st.subheader("🧹 추가한 메뉴 제거")
-if st.session_state.user_added:
-    remove_target = st.selectbox("삭제할 메뉴 선택", st.session_state.user_added)
-    if st.button("❌ 제거하기"):
-        st.session_state.menus.remove(remove_target)
-        st.session_state.user_added.remove(remove_target)
-        st.success(f'"{remove_target}" 메뉴가 삭제되었습니다.')
+    # 맛집 추천 출력
+    st.markdown("📍 **광주 맛집 추천**")
+    for place in restaurant_map[selected_menu]:
+        st.write(f"- {place}")
 else:
-    st.info("사용자가 추가한 메뉴가 없습니다.")
+    st.info("아래 버튼을 눌러 추천을 받아보세요!")
 
-# ✅ 룰렛 삽입 (PickerWheel)
-menu_query = ",".join(st.session_state.menus)
-iframe_code = f"""
-<iframe src="https://pickerwheel.com/emb/?choices={menu_query}&mode=spin" 
-width="100%" height="500" frameborder="0" scrolling="no"></iframe>
-"""
-components.html(iframe_code, height=520)
-
-# 📋 전체 메뉴 보기
-with st.expander("📋 현재 룰렛에 포함된 메뉴"):
-    st.write(", ".join(st.session_state.menus))
+# 전체 메뉴 보기
+with st.expander("📋 전체 추천 가능 메뉴 목록"):
+    st.write(", ".join(menus))
