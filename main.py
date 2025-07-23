@@ -40,4 +40,12 @@ with st.expander("전체 메뉴 보기"):
     st.write(", ".join(st.session_state.menus))
 
 # ❌ 사용자 추가 메뉴 제거
-st.subheader("🧹 사용자 추가 메뉴
+st.subheader("🧹 사용자 추가 메뉴 제거")
+if st.session_state.user_added:
+    menu_to_remove = st.selectbox("삭제할 메뉴를 선택하세요", st.session_state.user_added)
+    if st.button("❌ 메뉴 제거 요청"):
+        st.session_state.menus.remove(menu_to_remove)
+        st.session_state.user_added.remove(menu_to_remove)
+        st.success(f'"{menu_to_remove}" 메뉴가 제거되었습니다.')
+else:
+    st.info("사용자가 추가한 메뉴가 없습니다.")
