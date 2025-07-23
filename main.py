@@ -12,7 +12,7 @@ if "restaurant_map" not in st.session_state:
         "제육볶음": ["대추골식당 - 북구", "함지박식당 - 남구"],
     }
 
-# 전체 메뉴 리스트
+# 전체 메뉴 리스트 함수
 def get_all_menus():
     return list(st.session_state.restaurant_map.keys())
 
@@ -33,19 +33,6 @@ with st.form("add_menu"):
             st.success(f'"{new_menu}" 메뉴가 추가되었습니다.')
         else:
             st.warning("유효하지 않거나 이미 존재하는 메뉴입니다.")
-
-# 메뉴 제거
-st.subheader("🧹 메뉴 제거")
-if st.session_state.user_added_menus:
-    menu_to_remove = st.selectbox("삭제할 사용자 메뉴", st.session_state.user_added_menus)
-    if st.button("❌ 메뉴 완전 제거"):
-        del st.session_state.restaurant_map[menu_to_remove]
-        st.session_state.user_added_menus.remove(menu_to_remove)
-        if menu_to_remove in st.session_state.user_added_restaurants:
-            del st.session_state.user_added_restaurants[menu_to_remove]
-        st.success(f'"{menu_to_remove}" 메뉴와 연결된 맛집이 삭제되었습니다.')
-else:
-    st.info("사용자가 추가한 메뉴가 없습니다.")
 
 # 맛집 추가
 with st.form("add_restaurant"):
@@ -70,8 +57,8 @@ with st.form("add_restaurant"):
 # 맛집 제거
 st.subheader("❌ 맛집 제거")
 if st.session_state.user_added_restaurants:
-    menu_for_remove = st.selectbox("메뉴 선택", list(st.session_state.user_added_restaurants.keys()))
-    restaurant_to_remove = st.selectbox("삭제할 맛집 선택", st.session_state.user_added_restaurants[menu_for_remove])
+    menu_for_remove = st.selectbox("삭제할 맛집의 메뉴", list(st.session_state.user_added_restaurants.keys()))
+    restaurant_to_remove = st.selectbox("삭제할 맛집", st.session_state.user_added_restaurants[menu_for_remove])
     if st.button("🗑️ 맛집 제거"):
         st.session_state.restaurant_map[menu_for_remove].remove(restaurant_to_remove)
         st.session_state.user_added_restaurants[menu_for_remove].remove(restaurant_to_remove)
@@ -79,9 +66,20 @@ if st.session_state.user_added_restaurants:
 else:
     st.info("사용자가 추가한 맛집이 없습니다.")
 
+# 메뉴 제거
+st.subheader("🧹 사용자 메뉴 제거")
+if st.session_state.user_added_menus:
+    menu_to_remove = st.selectbox("삭제할 사용자 메뉴", st.session_state.user_added_menus)
+    if st.button("❌ 메뉴 완전 제거"):
+        del st.session_state.restaurant_map[menu_to_remove]
+        st.session_state.user_added_menus.remove(menu_to_remove)
+        if menu_to_remove in st.session_state.user_added_restaurants:
+            del st.session_state.user_added_restaurants[menu_to_remove]
+        st.success(f'"{menu_to_remove}" 메뉴와 관련된 맛집이 함께 삭제되었습니다.')
+else:
+    st.info("사용자가 추가한 메뉴가 없습니다.")
 
-
-# PickerWheel 룰렛
+# 룰렛 표시
 st.subheader("🎰 룰렛으로 추천받기")
 menu_str = ",".join(get_all_menus())
 iframe_code = f"""
@@ -90,11 +88,15 @@ width="100%" height="500" frameborder="0" scrolling="no"></iframe>
 """
 st.components.v1.html(iframe_code, height=520)
 
-# 추천 결과 수동 선택
+# 추천 결과 보기
 st.markdown("---")
 st.subheader("📍 룰렛 결과로 맛집 보기")
 selected_menu = st.selectbox("룰렛에서 나온 메뉴를 선택하세요", get_all_menus())
 if st.button("🍴 맛집 추천"):
     restaurants = st.session_state.restaurant_map.get(selected_menu, [])
     if restaurants:
-        st ​:contentReference[oaicite:0]{index=0}​
+        st.success(f"**{selected_menu}**에 어울리는 광주 맛집:")
+        for r in restaurants:
+            st.write(f"- {r}")
+    else:
+        st.warning("등록된 맛집이 없습니다.")
