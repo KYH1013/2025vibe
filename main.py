@@ -39,18 +39,25 @@ def count_adjacent_mines(x, y):
 def click_cell(i, j):
     if st.session_state.revealed[i][j] or st.session_state.game_over:
         return
-    st.session_state.revealed[i][j] = True
+
     if st.session_state.mines[i][j] == -1:
+        st.session_state.revealed[i][j] = True
         st.session_state.game_over = True
         st.warning("💥 지뢰를 밟았습니다! 게임 종료.")
-    else:
-        count = count_adjacent_mines(i, j)
-        if count == 0:
-            for dx in [-1, 0, 1]:
-                for dy in [-1, 0, 1]:
-                    ni, nj = i + dx, j + dy
-                    if 0 <= ni < ROWS and 0 <= nj < COLS:
+        return
+
+    count = count_adjacent_mines(i, j)
+    st.session_state.revealed[i][j] = True
+
+    if count == 0:
+        # 주변도 자동으로 열기
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                ni, nj = i + dx, j + dy
+                if 0 <= ni < ROWS and 0 <= nj < COLS:
+                    if not st.session_state.revealed[ni][nj]:
                         click_cell(ni, nj)
+
 
 # 👉 클릭 처리 (세션에서 안전하게 접근)
 clicked = st.session_state.get("clicked", None)
