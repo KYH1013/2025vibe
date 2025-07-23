@@ -44,7 +44,7 @@ st.markdown("""
 if score == 3:
     st.success("🎯 완벽한 하루! 건강 습관 만점입니다!")
 elif score == 2:
-    st.info("👍 잘하고 있어요! 물이나 수면을 조금 더 챙겨보면 좋겠어요.")
+    st.info("👍 잘하고 있어요! 부족한 부분을 조금 더 챙겨보면 좋겠어요.")
 elif score == 1:
     st.warning("🙂 노력은 좋은 시작! 조금만 더 신경 써봐요.")
 else:
