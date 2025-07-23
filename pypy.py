@@ -21,7 +21,7 @@ def calculate_score(w, e, s):
     return score
 
 # 입력 섹션
-st.subheader("📅 최근 일주일 날짜와 건강 습관 입력")
+st.subheader("📅 날짜와 건강 습관 입력")
 
 input_date = st.date_input("기록할 날짜", value=date.today())
 water = st.slider("💧 물 마신 양 (잔)", 0, 15, 0)
