@@ -83,3 +83,13 @@ if not st.session_state.habit_data.empty:
     st.metric("📈 평균 건강 점수", f"{avg_score:.2f}")
 else:
     st.info("아직 기록이 없습니다. 날짜를 선택하고 기록을 시작해보세요.")
+
+    # 평균 점수 피드백
+    st.markdown("### 💬 건강 피드백")
+    if avg_score >= 2.5:
+        st.success("🎉 훌륭해요! 건강 습관이 아주 잘 유지되고 있어요.")
+    elif avg_score >= 1.5:
+        st.info("🙂 괜찮은 흐름이에요. 물/수면/운동 중 한 가지만 더 챙겨봐요.")
+    else:
+        st.warning("⚠️ 습관 관리가 조금 부족해요. 지금부터 하나씩 다시 시작해보세요!")
+
