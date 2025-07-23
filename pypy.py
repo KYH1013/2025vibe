@@ -52,5 +52,3 @@ if st.button("🤔 GPT에게 조언받기"):
 
             except Exception as e:
                 st.error("❌ GPT 응답 중 문제가 발생했어요. API 키가 잘못되었거나 연결이 안 된 것 같아요.")
-
-commit
