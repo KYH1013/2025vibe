@@ -44,37 +44,7 @@ with st.form("add_menu"):
         else:
             st.warning("이미 있는 메뉴거나 입력이 비어있습니다.")
 
-# 맛집 추가
-with st.form("add_restaurant"):
-    st.subheader("🏪 맛집 추가")
-    menu_choice = st.selectbox("📌 메뉴 선택", get_all_menus())
-    restaurant_name = st.text_input("맛집 이름", placeholder="예: 홍익국밥")
-    restaurant_location = st.text_input("위치", placeholder="예: 동구")
-    if st.form_submit_button("🏷️ 맛집 추가"):
-        if restaurant_name and restaurant_location:
-            full = f"{restaurant_name} - {restaurant_location}"
-            if full not in st.session_state.restaurant_map[menu_choice]:
-                st.session_state.restaurant_map[menu_choice].append(full)
-                if menu_choice not in st.session_state.user_added_restaurants:
-                    st.session_state.user_added_restaurants[menu_choice] = []
-                st.session_state.user_added_restaurants[menu_choice].append(full)
-                st.success(f"{full} 맛집이 '{menu_choice}'에 추가되었습니다.")
-            else:
-                st.info("이미 등록된 맛집입니다.")
-        else:
-            st.warning("맛집 이름과 위치를 모두 입력해주세요.")
 
-# 맛집 제거
-st.subheader("❌ 맛집 제거")
-if st.session_state.user_added_restaurants:
-    menu_for_remove = st.selectbox("삭제할 맛집의 메뉴", list(st.session_state.user_added_restaurants.keys()))
-    restaurant_to_remove = st.selectbox("삭제할 맛집", st.session_state.user_added_restaurants[menu_for_remove])
-    if st.button("🗑️ 맛집 제거"):
-        st.session_state.restaurant_map[menu_for_remove].remove(restaurant_to_remove)
-        st.session_state.user_added_restaurants[menu_for_remove].remove(restaurant_to_remove)
-        st.success(f"{restaurant_to_remove} 맛집이 제거되었습니다.")
-else:
-    st.info("사용자가 추가한 맛집이 없습니다.")
 
 # 메뉴 제거
 st.subheader("🧹 메뉴 제거")
@@ -110,3 +80,35 @@ if st.button("🍴 맛집 추천"):
             st.write(f"- {r}")
     else:
         st.warning("등록된 맛집이 없습니다.")
+
+# 맛집 추가
+with st.form("add_restaurant"):
+    st.subheader("🏪 맛집 추가")
+    menu_choice = st.selectbox("📌 메뉴 선택", get_all_menus())
+    restaurant_name = st.text_input("맛집 이름", placeholder="예: 홍익국밥")
+    restaurant_location = st.text_input("위치", placeholder="예: 동구")
+    if st.form_submit_button("🏷️ 맛집 추가"):
+        if restaurant_name and restaurant_location:
+            full = f"{restaurant_name} - {restaurant_location}"
+            if full not in st.session_state.restaurant_map[menu_choice]:
+                st.session_state.restaurant_map[menu_choice].append(full)
+                if menu_choice not in st.session_state.user_added_restaurants:
+                    st.session_state.user_added_restaurants[menu_choice] = []
+                st.session_state.user_added_restaurants[menu_choice].append(full)
+                st.success(f"{full} 맛집이 '{menu_choice}'에 추가되었습니다.")
+            else:
+                st.info("이미 등록된 맛집입니다.")
+        else:
+            st.warning("맛집 이름과 위치를 모두 입력해주세요.")
+
+# 맛집 제거
+st.subheader("❌ 맛집 제거")
+if st.session_state.user_added_restaurants:
+    menu_for_remove = st.selectbox("삭제할 맛집의 메뉴", list(st.session_state.user_added_restaurants.keys()))
+    restaurant_to_remove = st.selectbox("삭제할 맛집", st.session_state.user_added_restaurants[menu_for_remove])
+    if st.button("🗑️ 맛집 제거"):
+        st.session_state.restaurant_map[menu_for_remove].remove(restaurant_to_remove)
+        st.session_state.user_added_restaurants[menu_for_remove].remove(restaurant_to_remove)
+        st.success(f"{restaurant_to_remove} 맛집이 제거되었습니다.")
+else:
+    st.info("사용자가 추가한 맛집이 없습니다.")
