@@ -47,6 +47,19 @@ st.markdown("""
 
 # 오늘 점수 표시
 st.metric("🟢 오늘의 건강 점수 (0~3)", f"{today_score}/3")
+# 오늘 점수 표시
+st.metric("🟢 오늘의 건강 점수 (0~3)", f"{today_score}/3")
+
+# ✅ 오늘 점수 기반 피드백 메시지
+if today_score == 3:
+    st.success("🎯 완벽한 하루! 건강 습관 만점입니다!")
+elif today_score == 2:
+    st.info("👍 잘하고 있어요! 물이나 수면을 조금 더 챙겨보면 좋겠어요.")
+elif today_score == 1:
+    st.warning("🙂 노력은 좋은 시작! 조금만 더 신경 써봐요.")
+else:
+    st.error("💡 오늘은 관리가 부족했어요. 내일부터 다시 시작해봐요!")
+
 
 # 저장
 if st.button("✅ 오늘 기록 저장"):
