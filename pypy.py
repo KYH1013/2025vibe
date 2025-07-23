@@ -68,10 +68,17 @@ if st.button("✅ 기록 저장"):
 # 기록 요약 테이블
 st.subheader("📋 기록 요약")
 if not st.session_state.habit_data.empty:
-    df = st.session_state.habit_data.sort_values("날짜")
+    df = st.session_state.habit_data.copy()
     df["날짜"] = pd.to_datetime(df["날짜"]).dt.strftime("%m/%d")
-    st.dataframe(df.set_index("날짜"))
 
+    # 점수 컬럼 없을 경우 계산해서 추가
+    if "점수" not in df.columns:
+        df["점수"] = df.apply(
+            lambda row: calculate_score(row["물(잔)"], row["운동"], row["수면(시간)"]),
+            axis=1
+        )
+
+    st.dataframe(df.set_index("날짜"))
     avg_score = df["점수"].mean()
     st.metric("📈 평균 건강 점수", f"{avg_score:.2f}")
 else:
