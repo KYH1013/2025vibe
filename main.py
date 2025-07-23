@@ -1,7 +1,7 @@
 import streamlit as st
 
-st.set_page_config(page_title="PickerWheel 점심 룰렛", page_icon="🍱")
-st.title("점심 룰렛 + 광주 맛집 추천")
+st.set_page_config(page_title="점심 룰렛과 광주맛집", page_icon="🍱")
+st.title("🍱점심 룰렛 + 광주 맛집 추천")
 
 # ✅ 기본 메뉴-맛집 매핑
 if "restaurant_map" not in st.session_state:
