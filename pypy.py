@@ -32,11 +32,14 @@ if st.button("✅ 오늘 기록 저장"):
         st.session_state.habit_data.at[i, "수면(시간)"] = sleep
         st.success("오늘 기록이 저장되었습니다!")
 
-# 시각화
+# 📊 시각화
 st.subheader("📊 최근 7일간 습관 리포트")
 
 df = st.session_state.habit_data.copy()
-df["날짜"] = df["날짜"].dt.strftime("%m/%d")  # 날짜 포맷 간단히
+
+# ✅ 날짜 열을 datetime 형식으로 변환한 후 MM/DD 표시
+df["날짜"] = pd.to_datetime(df["날짜"])
+df["날짜"] = df["날짜"].dt.strftime("%m/%d")
 
 # 물 그래프
 st.markdown("### 💧 물 마신 양")
