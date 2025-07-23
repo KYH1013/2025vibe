@@ -34,6 +34,19 @@ with st.form("add_menu"):
         else:
             st.warning("유효하지 않거나 이미 존재하는 메뉴입니다.")
 
+# 메뉴 제거
+st.subheader("🧹 메뉴 제거")
+if st.session_state.user_added_menus:
+    menu_to_remove = st.selectbox("삭제할 사용자 메뉴", st.session_state.user_added_menus)
+    if st.button("❌ 메뉴 완전 제거"):
+        del st.session_state.restaurant_map[menu_to_remove]
+        st.session_state.user_added_menus.remove(menu_to_remove)
+        if menu_to_remove in st.session_state.user_added_restaurants:
+            del st.session_state.user_added_restaurants[menu_to_remove]
+        st.success(f'"{menu_to_remove}" 메뉴와 연결된 맛집이 삭제되었습니다.')
+else:
+    st.info("사용자가 추가한 메뉴가 없습니다.")
+
 # 맛집 추가
 with st.form("add_restaurant"):
     st.subheader("🏪 맛집 추가")
@@ -66,18 +79,7 @@ if st.session_state.user_added_restaurants:
 else:
     st.info("사용자가 추가한 맛집이 없습니다.")
 
-# 메뉴 제거
-st.subheader("🧹 메뉴 제거")
-if st.session_state.user_added_menus:
-    menu_to_remove = st.selectbox("삭제할 사용자 메뉴", st.session_state.user_added_menus)
-    if st.button("❌ 메뉴 완전 제거"):
-        del st.session_state.restaurant_map[menu_to_remove]
-        st.session_state.user_added_menus.remove(menu_to_remove)
-        if menu_to_remove in st.session_state.user_added_restaurants:
-            del st.session_state.user_added_restaurants[menu_to_remove]
-        st.success(f'"{menu_to_remove}" 메뉴와 연결된 맛집이 삭제되었습니다.')
-else:
-    st.info("사용자가 추가한 메뉴가 없습니다.")
+
 
 # PickerWheel 룰렛
 st.subheader("🎰 룰렛으로 추천받기")
