@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import date, timedelta
 
 st.set_page_config(page_title="생활 습관 체크", page_icon="👟")
-st.title("👟 생활 습관 체크 앱 (내장 차트 사용)")
+st.title("👟 생활 습관 체크 앱 (건강 리포트 포함)")
 
 # 초기 데이터
 if "habit_data" not in st.session_state:
@@ -15,7 +15,7 @@ if "habit_data" not in st.session_state:
         "수면(시간)": [0]*7
     })
 
-# 오늘 기록
+# 오늘 기록 입력
 today_str = date.today().strftime("%Y-%m-%d")
 st.subheader(f"📅 오늘 ({today_str}) 기록")
 
@@ -32,23 +32,34 @@ if st.button("✅ 오늘 기록 저장"):
         st.session_state.habit_data.at[i, "수면(시간)"] = sleep
         st.success("오늘 기록이 저장되었습니다!")
 
-# 📊 시각화
+# 리포트 섹션
 st.subheader("📊 최근 7일간 습관 리포트")
 
 df = st.session_state.habit_data.copy()
-
-# ✅ 날짜 열을 datetime 형식으로 변환한 후 MM/DD 표시
 df["날짜"] = pd.to_datetime(df["날짜"])
 df["날짜"] = df["날짜"].dt.strftime("%m/%d")
 
-# 물 그래프
 st.markdown("### 💧 물 마신 양")
 st.line_chart(data=df.set_index("날짜")[["물(잔)"]])
 
-# 운동 그래프
 st.markdown("### 🏃 운동 여부")
 st.bar_chart(data=df.set_index("날짜")[["운동"]])
 
-# 수면 그래프
 st.markdown("### 🛌 수면 시간")
 st.line_chart(data=df.set_index("날짜")[["수면(시간)"]])
+
+# 🧾 건강 리포트 요약
+st.subheader("🧾 건강 리포트 요약 (최근 7일 기준)")
+
+# 점수 계산 함수
+def calculate_score(row):
+    score = 0
+    if row["물(잔)"] >= 6:
+        score += 1
+    if row["운동"] == 1:
+        score += 1
+    if 7 <= row["수면(시간)"] <= 9:
+        score += 1
+    return score
+
+df["점수"] = df.apply(calculate
