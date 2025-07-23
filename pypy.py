@@ -1,28 +1,13 @@
 import streamlit as st
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date
 
-st.set_page_config(page_title="생활 습관 체크", page_icon="👟")
-st.title("👟 생활 습관 체크 앱 (건강 점수 포함)")
+st.set_page_config(page_title="습관 트래커", page_icon="👟")
+st.title("👟 생활 습관 체크 앱")
 
-# 초기 데이터 설정
+# 초기 데이터 프레임
 if "habit_data" not in st.session_state:
-    today = date.today()
-    st.session_state.habit_data = pd.DataFrame({
-        "날짜": [today - timedelta(days=i) for i in reversed(range(7))],
-        "물(잔)": [0]*7,
-        "운동": [0]*7,
-        "수면(시간)": [0]*7
-    })
-
-today = date.today()
-today_str = today.strftime("%Y-%m-%d")
-st.subheader(f"📅 오늘 ({today_str}) 기록")
-
-# 사용자 입력
-water = st.slider("💧 물 마신 양 (잔)", 0, 15, 0)
-exercise = st.checkbox("🏃 운동했나요?")
-sleep = st.slider("🛌 수면 시간 (시간)", 0, 12, 0)
+    st.session_state.habit_data = pd.DataFrame(columns=["날짜", "물(잔)", "운동", "수면(시간)", "점수"])
 
 # 점수 계산 함수
 def calculate_score(w, e, s):
@@ -35,82 +20,59 @@ def calculate_score(w, e, s):
         score += 1
     return score
 
-today_score = calculate_score(water, exercise, sleep)
+# 입력 섹션
+st.subheader("📅 날짜와 건강 습관 입력")
 
-# 점수 기준 안내 및 오늘 점수 출력
-st.markdown("### 🧮 오늘의 건강 점수 기준")
+input_date = st.date_input("기록할 날짜", value=date.today())
+water = st.slider("💧 물 마신 양 (잔)", 0, 15, 0)
+exercise = st.checkbox("🏃 운동했나요?", value=False)
+sleep = st.slider("🛌 수면 시간 (시간)", 0, 12, 0)
+
+# 점수 계산 및 출력
+score = calculate_score(water, exercise, sleep)
+st.metric("📊 입력일 건강 점수", f"{score}/3")
+
+# 점수 기준
+st.markdown("### 🧮 건강 점수 기준")
 st.markdown("""
-- 💧 물을 6잔 이상 마시면 **+1점**  
-- 🏃 운동을 하면 **+1점**  
-- 🛌 수면 시간이 7~9시간이면 **+1점**
+- 💧 물 6잔 이상 → +1점  
+- 🏃 운동 했음 → +1점  
+- 🛌 수면 7~9시간 → +1점
 """)
-st.metric("🟢 오늘의 건강 점수 (0~3)", f"{today_score}/3")
 
-# 점수에 따른 피드백
-if today_score == 3:
+# 피드백 메시지
+if score == 3:
     st.success("🎯 완벽한 하루! 건강 습관 만점입니다!")
-elif today_score == 2:
+elif score == 2:
     st.info("👍 잘하고 있어요! 물이나 수면을 조금 더 챙겨보면 좋겠어요.")
-elif today_score == 1:
+elif score == 1:
     st.warning("🙂 노력은 좋은 시작! 조금만 더 신경 써봐요.")
 else:
     st.error("💡 오늘은 관리가 부족했어요. 내일부터 다시 시작해봐요!")
 
-# 기록 저장
-if st.button("✅ 오늘 기록 저장"):
-    idx = st.session_state.habit_data[st.session_state.habit_data["날짜"] == today].index
-    if not idx.empty:
-        i = idx[0]
-        st.session_state.habit_data.at[i, "물(잔)"] = water
-        st.session_state.habit_data.at[i, "운동"] = int(exercise)
-        st.session_state.habit_data.at[i, "수면(시간)"] = sleep
-        st.success("오늘 기록이 저장되었습니다!")
+# 저장 버튼
+if st.button("✅ 기록 저장"):
+    new_entry = {
+        "날짜": input_date,
+        "물(잔)": water,
+        "운동": int(exercise),
+        "수면(시간)": sleep,
+        "점수": score
+    }
+    st.session_state.habit_data = pd.concat([
+        st.session_state.habit_data[st.session_state.habit_data["날짜"] != input_date],
+        pd.DataFrame([new_entry])
+    ], ignore_index=True)
+    st.success(f"{input_date.strftime('%Y-%m-%d')} 기록이 저장되었습니다!")
 
-# 리포트
-st.subheader("📊 최근 7일간 습관 리포트")
+# 기록 요약 테이블
+st.subheader("📋 기록 요약")
+if not st.session_state.habit_data.empty:
+    df = st.session_state.habit_data.sort_values("날짜")
+    df["날짜"] = pd.to_datetime(df["날짜"]).dt.strftime("%m/%d")
+    st.dataframe(df.set_index("날짜"))
 
-df = st.session_state.habit_data.copy()
-df["날짜"] = pd.to_datetime(df["날짜"])
-df["날짜"] = df["날짜"].dt.strftime("%m/%d")
-
-# 그래프를 작게 표시
-col1, col2 = st.columns(2)
-
-with col1:
-    st.markdown("#### 💧 물 마신 양")
-    st.line_chart(df.set_index("날짜")[["물(잔)"]], use_container_width=False)
-
-with col2:
-    st.markdown("#### 🏃 운동 여부")
-    st.bar_chart(df.set_index("날짜")[["운동"]], use_container_width=False)
-
-st.markdown("#### 🛌 수면 시간")
-st.line_chart(df.set_index("날짜")[["수면(시간)"]], use_container_width=False)
-
-# 주간 리포트
-st.subheader("🧾 건강 리포트 요약 (최근 7일 기준)")
-
-# 주간 점수 계산
-def row_score(row):
-    score = 0
-    if row["물(잔)"] >= 6:
-        score += 1
-    if row["운동"] == 1:
-        score += 1
-    if 7 <= row["수면(시간)"] <= 9:
-        score += 1
-    return score
-
-df["점수"] = df.apply(row_score, axis=1)
-avg_score = df["점수"].mean()
-
-# 주간 피드백
-if avg_score >= 2.5:
-    msg = "🎉 완벽한 건강 습관! 지금처럼만 유지해보세요!"
-elif avg_score >= 1.5:
-    msg = "🙂 좋은 흐름이에요! 물 섭취나 수면을 조금 더 챙겨보면 더 좋아요."
+    avg_score = df["점수"].mean()
+    st.metric("📈 평균 건강 점수", f"{avg_score:.2f}")
 else:
-    msg = "💡 최근 관리를 놓치셨나요? 오늘부터 다시 작게 시작해보세요!"
-
-st.metric("최근 7일 평균 건강 점수 (0~3)", f"{avg_score:.2f}")
-st.info(msg)
+    st.info("아직 기록이 없습니다. 날짜를 선택하고 기록을 시작해보세요.")
