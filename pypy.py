@@ -1,56 +1,47 @@
-pip install openai
 import streamlit as st
-import openai
-
-# 🔑 OpenAI API 키 설정
-openai.api_key = st.secrets.get("OPENAI_API_KEY", "")
 
 st.set_page_config(page_title="이거 살까 말까 도우미", page_icon="🛍️")
-st.title("🛍️ 이거 살까 말까? 소비 결정 도우미")
+st.title("🛍️ 이거 살까 말까? 소비 결정 도우미 (GPT 없음 버전)")
 
-# 입력 받기
-st.subheader("1️⃣ 사고 싶은 물건이나 서비스를 알려주세요")
+# 입력
+st.subheader("1️⃣ 사고 싶은 물건이나 서비스를 입력하세요")
 item = st.text_input("예: 갤럭시 워치7, 명상 앱 1년 구독")
 
-st.subheader("2️⃣ 구매 배경/상황을 알려주세요 (선택)")
-context = st.text_area("예: 운동 시작하려고요. 현재 스마트워치는 없습니다.")
+st.subheader("2️⃣ 구매하려는 이유는 무엇인가요?")
+reason = st.text_area("예: 운동할 때 쓰려고요. 집중에 도움이 될 것 같아요.")
 
-if st.button("🤔 살까 말까 판단 도와줘"):
-    if not item:
-        st.warning("물건 또는 서비스명을 입력해주세요!")
+st.subheader("3️⃣ 지금 가진 비슷한 물건이 있나요?")
+has_similar = st.radio("예 / 아니요", ["예", "아니요"], horizontal=True)
+
+st.subheader("4️⃣ 얼마나 자주 사용할 것 같나요?")
+frequency = st.selectbox("예상 사용 빈도", ["거의 안 쓸 듯", "가끔", "자주", "매일"])
+
+st.subheader("5️⃣ 가격에 대해 어떻게 느끼나요?")
+cost_feeling = st.radio("부담됨 / 괜찮음", ["부담됨", "괜찮음"], horizontal=True)
+
+st.subheader("6️⃣ 지금 감정 상태는 어떤가요?")
+emotion = st.selectbox("지금 기분", ["기분 좋음", "지침", "우울함", "충동적인 느낌", "평온함"])
+
+if st.button("🤔 판단 결과 보기"):
+    st.markdown("### 🧠 소비 판단 리포트")
+
+    # 간단한 규칙 기반 판단
+    flags = []
+
+    if has_similar == "예":
+        flags.append("- 이미 비슷한 물건이 있어요.")
+    if frequency in ["거의 안 쓸 듯", "가끔"]:
+        flags.append("- 자주 쓰지 않을 가능성이 있어요.")
+    if cost_feeling == "부담됨":
+        flags.append("- 가격이 부담된다고 느끼고 있어요.")
+    if emotion in ["우울함", "충동적인 느낌"]:
+        flags.append("- 지금 감정 상태가 구매에 영향을 줄 수 있어요.")
+
+    if flags:
+        st.write("다음과 같은 점을 고려해보세요:")
+        for f in flags:
+            st.write(f)
+
+        st.warning("💡 잠깐 기다려보고 다시 생각해보는 것도 좋을 것 같아요!")
     else:
-        with st.spinner("AI가 당신의 소비를 도와주는 중..."):
-            # GPT 프롬프트 구성
-            prompt = f"""
-너는 소비 결정을 도와주는 조언자야. 사용자가 어떤 물건을 사고 싶어할 때,
-충동구매를 줄이고 가치소비를 할 수 있도록 현실적이고 따뜻한 질문을 해줘.
-마지막엔 구매 여부에 대한 판단을 내려주되, 사용자가 스스로 결정할 수 있도록 유도해.
-
-[사고 싶은 항목]
-{item}
-
-[배경/상황]
-{context if context else "없음"}
-
-1. 사고 싶은 이유를 물어봐줘.
-2. 비슷한 걸 이미 갖고 있는지 확인해줘.
-3. 그 물건이 얼마나 자주 쓰일지 물어봐.
-4. 기분에 따른 충동인지도 고려해줘.
-5. 3일 뒤에도 여전히 원할지 스스로 생각하게 해줘.
-6. 마지막으로 구매해도 괜찮을지 한 문장으로 조언해줘.
-            """
-
-            try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-4",
-                    messages=[
-                        {"role": "system", "content": "당신은 절제 있고 따뜻한 소비 조언자입니다."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.7
-                )
-                answer = response.choices[0].message.content
-                st.markdown("### 🧠 소비 판단 리포트")
-                st.write(answer)
-            except Exception as e:
-                st.error("GPT 응답 중 문제가 발생했습니다. API 키 또는 연결 상태를 확인하세요.")
+        st.success("🎉 괜찮은 소비일 가능성이 높아요! 가치 있는 소비가 되길 바랍니다.")
